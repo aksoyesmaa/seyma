@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kareköklü Sayı Avcısı | 8. Sınıf Matematik Oyunu</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .grid-cols-20 {
+      grid-template-columns: repeat(20, minmax(0, 1fr));
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 24s linear infinite;
+    }
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .animate-float-gentle {
+      animation: float-gentle 3.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen relative flex flex-col justify-between overflow-x-hidden bg-sky-300">
+  <!-- Sky & Hills Background -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none select-none z-0">
+    <div class="absolute inset-0 bg-gradient-to-b from-sky-400 via-sky-300 to-amber-100/60"></div>
+    <!-- Sun -->
+    <div class="absolute top-4 left-1/3 -translate-x-1/2 flex items-center justify-center">
+      <div class="absolute w-36 h-36 rounded-full bg-yellow-300/40 blur-2xl animate-pulse"></div>
+      <div class="relative w-24 h-24 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-yellow-100 shadow-xl border-4 border-yellow-200 flex items-center justify-center animate-spin-slow">
+        <div class="flex flex-col items-center">
+          <div class="flex items-center gap-1.5 -mt-1">
+            <div class="w-4 h-3 bg-slate-900 rounded-b-md"></div>
+            <div class="w-1.5 h-0.5 bg-slate-900"></div>
+            <div class="w-4 h-3 bg-slate-900 rounded-b-md"></div>
+          </div>
+          <div class="w-4 h-2 border-b-2 border-slate-900 rounded-full mt-0.5"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Clouds -->
+    <div class="absolute top-10 left-12 opacity-90 animate-float-gentle">
+      <svg width="120" height="50" viewBox="0 0 120 50" fill="white">
+        <ellipse cx="40" cy="30" rx="30" ry="20" fill="#ffffff" />
+        <ellipse cx="70" cy="24" rx="28" ry="22" fill="#ffffff" />
+        <ellipse cx="95" cy="32" rx="22" ry="16" fill="#ffffff" />
+      </svg>
+    </div>
+    <div class="absolute top-6 right-24 opacity-80 animate-float-gentle" style="animation-delay: 1.5s;">
+      <svg width="140" height="60" viewBox="0 0 140 60" fill="white">
+        <ellipse cx="45" cy="36" rx="35" ry="22" fill="#ffffff" />
+        <ellipse cx="80" cy="28" rx="32" ry="24" fill="#ffffff" />
+        <ellipse cx="110" cy="38" rx="25" ry="18" fill="#ffffff" />
+      </svg>
+    </div>
+    <!-- Rolling Hills -->
+    <div class="absolute bottom-0 left-0 right-0 h-96">
+      <svg viewBox="0 0 1440 360" class="absolute bottom-0 w-full h-full" preserveAspectRatio="none">
+        <path d="M0,160 C320,100 480,220 800,140 C1120,60 1280,180 1440,120 L1440,360 L0,360 Z" fill="#34d399" fill-opacity="0.35"/>
+        <path d="M0,220 C240,140 560,280 880,180 C1200,80 1360,200 1440,180 L1440,360 L0,360 Z" fill="#10b981" fill-opacity="0.45"/>
+        <path d="M0,260 C360,180 640,320 1000,220 C1260,150 1380,240 1440,230 L1440,360 L0,360 Z" fill="#059669" fill-opacity="0.65"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="w-full px-4 py-2.5 z-30 pointer-events-auto">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-3xl border-2 border-emerald-500/50 shadow-lg">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white font-black text-xl shadow-md border border-emerald-300">√x</div>
+        <div>
+          <h1 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">Kareköklü Sayı Avcısı</h1>
+          <p class="text-[11px] text-slate-600 font-medium">8. Sınıf Matematik &middot; MEB M.8.1.3.2</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="toggleAudio()" id="audioBtn" class="px-3 py-1.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs transition cursor-pointer">🔊 Ses</button>
+        <button onclick="restartGame()" class="px-3 py-1.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs transition cursor-pointer">🔄 Yeniden Başlat</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Area -->
+  <div class="relative flex-1 w-full max-w-7xl mx-auto px-4 py-3 flex flex-col justify-between z-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+      
+      <!-- Left: Wood Rack -->
+      <div class="max-w-sm sm:max-w-md w-full bg-gradient-to-r from-amber-900 via-amber-800 to-amber-950 p-3 sm:p-4 rounded-3xl shadow-2xl border-4 border-amber-950/70 text-amber-100">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-inner"></div>
+            <h2 class="text-xs sm:text-sm font-black text-amber-200 uppercase tracking-wider">🪵 Kareköklü Sayı Blokları</h2>
+          </div>
+          <button onclick="replenishBlocks()" class="px-2 py-0.5 rounded-xl bg-amber-950/60 hover:bg-amber-900 text-amber-300 text-[11px] font-bold border border-amber-700/60 cursor-pointer">Yenile</button>
+        </div>
+        <div id="blocksContainer" class="grid grid-cols-3 gap-2"></div>
+        <div class="mt-2.5 pt-2 border-t border-amber-900/60 text-[10px] text-amber-300/80">👆 Bloğa tıkla veya sürükleyip sayı doğrusundaki doğru aralığa bırak!</div>
+      </div>
+
+      <!-- Right: Owl Character -->
+      <div class="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-2.5">
+        <div class="relative bg-white/95 backdrop-blur-md text-slate-800 p-3.5 sm:p-4 rounded-3xl shadow-xl border-3 border-amber-300 max-w-[300px]">
+          <div class="flex items-start gap-2">
+            <span class="text-amber-500 text-base">✨</span>
+            <div>
+              <p id="owlSpeech" class="font-extrabold text-xs sm:text-sm text-slate-800 leading-snug">√13 sayısı hangi iki tam sayı arasındadır?</p>
+              <p class="text-[11px] text-indigo-700 font-semibold mt-1">Bloğu sayı doğrusunda doğru aralığa bırak!</p>
+            </div>
+          </div>
+          <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
+            <button onclick="askHint()" class="px-2.5 py-1 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-bold border border-amber-300 cursor-pointer">💡 İpucu Ver</button>
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">8. Sınıf LGS</span>
+          </div>
+        </div>
+
+        <!-- Owl Mascot -->
+        <div class="relative cursor-pointer transition-transform hover:scale-105" onclick="owlHoot()">
+          <svg viewBox="0 0 120 130" class="w-20 h-22 sm:w-26 sm:h-28 drop-shadow-xl" fill="none">
+            <path d="M60 6 L104 22 L60 38 L16 22 Z" fill="#1e1b4b" stroke="#312e81" stroke-width="2.5"/>
+            <path d="M36 28 C36 40 84 40 84 28 Z" fill="#0f172a"/>
+            <circle cx="60" cy="22" r="3" fill="#fbbf24"/>
+            <path d="M60 22 C68 24 82 28 88 38" stroke="#fbbf24" stroke-width="2"/>
+            <rect x="86" y="38" width="5" height="10" rx="1.5" fill="#f59e0b"/>
+            <ellipse cx="60" cy="78" rx="42" ry="44" fill="#854d0e" stroke="#713f12" stroke-width="3"/>
+            <ellipse cx="60" cy="85" rx="28" ry="32" fill="#fef08a"/>
+            <path d="M20 72 C10 85 18 105 30 100 Z" fill="#713f12"/>
+            <path d="M100 72 C110 85 102 105 90 100 Z" fill="#713f12"/>
+            <circle cx="44" cy="56" r="16" fill="#ffffff" stroke="#713f12" stroke-width="2"/>
+            <circle cx="76" cy="56" r="16" fill="#ffffff" stroke="#713f12" stroke-width="2"/>
+            <circle cx="44" cy="56" r="17" fill="none" stroke="#0284c7" stroke-width="3"/>
+            <circle cx="76" cy="56" r="17" fill="none" stroke="#0284c7" stroke-width="3"/>
+            <path d="M60 56 L61 56" stroke="#0284c7" stroke-width="3.5"/>
+            <circle cx="45" cy="56" r="7" fill="#0f172a"/>
+            <circle cx="77" cy="56" r="7" fill="#0f172a"/>
+            <circle cx="42" cy="53" r="2.5" fill="#ffffff"/>
+            <circle cx="74" cy="53" r="2.5" fill="#ffffff"/>
+            <polygon points="56,66 64,66 60,78" fill="#f97316"/>
+          </svg>
+          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full bg-amber-500 text-[10px] font-black text-slate-950">Prof. Baykuş 🦉</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Block Notification -->
+    <div class="flex justify-center my-2 pointer-events-none">
+      <div id="selectionBanner" class="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full border-2 border-emerald-400 text-xs sm:text-sm font-black text-emerald-950 shadow-md">
+        Seçili Blok: <span id="selectedRootLabel" class="text-amber-800 font-mono text-base font-bold">√13</span> &rarr; Sayı doğrusundaki doğru aralığa bırak!
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Number Line: Natural numbers directly on the line without gap -->
+  <div class="w-full max-w-7xl mx-auto px-2 sm:px-4 pb-4 z-20">
+    <div class="w-full bg-white/95 backdrop-blur-md rounded-3xl border-3 border-emerald-500/80 shadow-2xl p-4 sm:p-5 relative select-none">
+      <div class="flex items-center justify-between mb-2 px-1">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📏</span>
+          <span class="text-xs sm:text-sm font-black text-slate-800">Sayı Doğrusu (0 - 20)</span>
+          <span class="text-[11px] text-slate-500 font-semibold">(Doğal sayılar doğrudan sayı doğrusunun üzerinde)</span>
+        </div>
+      </div>
+
+      <div class="w-full overflow-x-auto pb-4 pt-2 scroll-smooth">
+        <div class="min-w-[960px] lg:min-w-full px-6 relative">
+          
+          <!-- Natural Numbers placed directly ON the line with tick marks, ZERO gap -->
+          <div class="relative w-full pt-10 pb-6">
+            <!-- Continuous Line with Arrowheads -->
+            <div class="absolute left-0 right-0 top-10 flex items-center w-full">
+              <div class="w-0 h-0 border-y-[8px] border-y-transparent border-r-[12px] border-r-slate-800 -mr-1 z-10"></div>
+              <div class="flex-1 h-2.5 bg-slate-800 rounded-full"></div>
+              <div class="w-0 h-0 border-y-[8px] border-y-transparent border-l-[12px] border-l-slate-800 -ml-1 z-10"></div>
+            </div>
+
+            <!-- Numbers & Ticks Row directly on the line -->
+            <div class="relative flex justify-between w-full z-10 pointer-events-none">
+              <!-- 0 to 20 numbers directly attached to line -->
+              <script>
+                // Will be rendered dynamically
+              </script>
+            </div>
+
+            <!-- Interactive Click & Drop Intervals right on the line -->
+            <div id="intervalsTrack" class="grid grid-cols-20 w-full relative z-20 -mt-8"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score & Lives Widget -->
+  <div class="fixed bottom-4 right-4 z-30 pointer-events-auto">
+    <div class="bg-gradient-to-r from-amber-900 via-amber-800 to-amber-950 text-amber-100 p-3 sm:p-4 rounded-3xl shadow-2xl border-3 border-amber-950 flex items-center gap-3">
+      <div class="pr-3 border-r border-amber-700/60">
+        <span class="text-[10px] uppercase font-black text-amber-300 block">Puan</span>
+        <span id="scoreText" class="text-xl sm:text-2xl font-black text-white font-mono">0</span>
+      </div>
+      <div class="flex flex-col items-center">
+        <span class="text-[10px] uppercase font-black text-amber-300 mb-1">Can</span>
+        <div id="livesContainer" class="flex items-center gap-1">
+          <span class="text-rose-500 text-lg">❤️</span>
+          <span class="text-rose-500 text-lg">❤️</span>
+          <span class="text-rose-500 text-lg">❤️</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Explanation Modal -->
+  <div id="explanationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
+    <div class="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl p-6 text-slate-200 shadow-2xl">
+      <div id="modalHeader" class="text-xl font-black mb-3"></div>
+      <div id="modalBody" class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 text-xs sm:text-sm font-mono"></div>
+      <div class="mt-4 flex justify-end">
+        <button onclick="closeExplanation()" class="px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm cursor-pointer">Sıradaki Kök Sayıya Geç &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio Synthesis
+    let audioCtx = null;
+    let isMuted = false;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function toggleAudio() {
+      isMuted = !isMuted;
+      document.getElementById('audioBtn').innerText = isMuted ? '🔇 Sessiz' : '🔊 Ses';
+    }
+    function playSound(type) {
+      if (isMuted) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        if (type === 'correct') {
+          [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(freq, now + i * 0.08);
+            gain.gain.setValueAtTime(0.15, now + i * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + i * 0.08);
+            osc.stop(now + i * 0.08 + 0.3);
+          });
+        } else if (type === 'wrong') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(110, now + 0.28);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'pop') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(700, now + 0.06);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        }
+      } catch (e) {}
+    }
+    function owlHoot() {
+      playSound('pop');
+    }
+
+    // Game State
+    let score = 0;
+    let lives = 3;
+    let blocks = [13, 2, 5, 11, 17, 27];
+    let selectedBlock = 13;
+    let placedBlocks = {};
+
+    function getProblem(num) {
+      const lower = Math.floor(Math.sqrt(num));
+      const upper = lower + 1;
+      return { num, lower, upper, lowerSq: lower * lower, upperSq: upper * upper };
+    }
+
+    function renderBlocks() {
+      const container = document.getElementById('blocksContainer');
+      container.innerHTML = '';
+      blocks.forEach(num => {
+        const isSelected = selectedBlock === num;
+        const btn = document.createElement('div');
+        btn.draggable = true;
+        btn.ondragstart = (e) => {
+          e.dataTransfer.setData('text/plain', String(num));
+          selectBlock(num);
+        };
+        btn.onclick = () => selectBlock(num);
+        btn.className = 'group select-none cursor-grab p-2.5 rounded-2xl flex flex-col items-center justify-center transition-all ' + 
+          (isSelected 
+            ? 'bg-gradient-to-b from-amber-200 via-amber-300 to-amber-400 text-amber-950 shadow-xl ring-4 ring-amber-300 scale-105' 
+            : 'bg-gradient-to-b from-amber-100 to-amber-200 text-amber-950 hover:scale-102 border-2 border-amber-400');
+        btn.innerHTML = '<span class="font-black font-mono text-base"><span class="text-amber-800 text-lg leading-none font-sans">√</span>' + num + '</span>' +
+          '<span class="text-[9px] font-bold text-amber-900/80 mt-0.5">Sürükle/Tıkla</span>';
+        container.appendChild(btn);
+      });
+      document.getElementById('selectedRootLabel').innerText = '√' + selectedBlock;
+    }
+
+    function selectBlock(num) {
+      selectedBlock = num;
+      playSound('pop');
+      renderBlocks();
+      renderNumberLine();
+      document.getElementById('owlSpeech').innerText = '√' + num + ' sayısı hangi iki tam sayı arasındadır?';
+    }
+
+    function renderNumberLine() {
+      const track = document.getElementById('intervalsTrack');
+      track.innerHTML = '';
+      const prob = getProblem(selectedBlock);
+
+      for (let i = 0; i < 20; i++) {
+        const isTarget = (prob.lower === i && prob.upper === i + 1);
+        const placed = placedBlocks[i] || [];
+        const slot = document.createElement('div');
+        slot.ondragover = (e) => { e.preventDefault(); };
+        slot.ondrop = (e) => { e.preventDefault(); handleDrop(i); };
+        slot.onclick = () => handleDrop(i);
+        slot.className = 'group relative h-24 flex flex-col justify-between cursor-pointer transition-all rounded-xl mx-0.5 ' +
+          (isTarget ? 'bg-amber-100/70 ring-2 ring-amber-400 shadow-lg' : 'hover:bg-slate-100/80');
+
+        let placedHtml = '';
+        if (placed.length > 0) {
+          placedHtml = placed.map(n => '<span class="px-1.5 py-0.5 rounded-md bg-emerald-600 text-white font-mono font-black text-xs">√' + n + '</span>').join(' ');
+        } else if (isTarget) {
+          placedHtml = '<span class="text-[10px] font-bold text-amber-900 bg-amber-300 px-1 rounded animate-bounce">Burası</span>';
+        }
+
+        slot.innerHTML = '<div class="h-8 flex items-center justify-center">' + placedHtml + '</div>' +
+          '<div class="w-full flex items-center justify-center my-auto">' + (isTarget ? '<div class="w-full h-2 bg-amber-400 rounded-full shadow"></div>' : '') + '</div>' +
+          '<div class="flex justify-between w-full px-1 pt-1 border-t-2 border-slate-800 bg-white">' +
+            '<span class="text-xs sm:text-sm font-black font-mono text-slate-900">' + i + '</span>' +
+            '<span class="text-xs sm:text-sm font-black font-mono text-slate-900">' + (i + 1) + '</span>' +
+          '</div>';
+
+        track.appendChild(slot);
+      }
+    }
+
+    function handleDrop(intervalIndex) {
+      if (!selectedBlock) return;
+      const prob = getProblem(selectedBlock);
+      const isCorrect = (prob.lower === intervalIndex && prob.upper === intervalIndex + 1);
+
+      if (isCorrect) {
+        playSound('correct');
+        score += 10;
+        document.getElementById('scoreText').innerText = score;
+        if (!placedBlocks[intervalIndex]) placedBlocks[intervalIndex] = [];
+        placedBlocks[intervalIndex].push(selectedBlock);
+        document.getElementById('owlSpeech').innerText = 'Harikasın! ' + prob.lowerSq + ' < ' + prob.num + ' < ' + prob.upperSq + ' olduğundan √' + prob.num + ' sayısı ' + prob.lower + ' ile ' + prob.upper + ' arasındadır!';
+        
+        blocks = blocks.filter(b => b !== selectedBlock);
+        if (blocks.length === 0) {
+          blocks = [38, 52, 75, 115, 170, 260];
+        }
+        selectedBlock = blocks[0];
+        renderBlocks();
+        renderNumberLine();
+      } else {
+        playSound('wrong');
+        lives--;
+        updateLives();
+        document.getElementById('owlSpeech').innerText = 'Dikkat! √' + prob.num + ' sayısı ' + prob.lowerSq + ' ile ' + prob.upperSq + ' arasındadır!';
+        showExplanation(prob, intervalIndex);
+      }
+    }
+
+    function updateLives() {
+      const container = document.getElementById('livesContainer');
+      container.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        container.innerHTML += (i < lives) ? '<span class="text-rose-500 text-lg">❤️</span>' : '<span class="text-slate-400 text-lg opacity-40">🖤</span>';
+      }
+      if (lives <= 0) {
+        alert('Canların bitti! Toplam Puanın: ' + score);
+        restartGame();
+      }
+    }
+
+    function showExplanation(prob, wrongIndex) {
+      const modal = document.getElementById('explanationModal');
+      document.getElementById('modalHeader').innerHTML = '<span class="text-rose-400">Yanlış Aralık Seçildi</span>';
+      document.getElementById('modalBody').innerHTML = 
+        '<div>Seçilen Aralık: [' + wrongIndex + ' - ' + (wrongIndex + 1) + ']</div>' +
+        '<div class="text-indigo-300 font-bold mt-2">1. Tam kareleri bul: ' + prob.lowerSq + ' < ' + prob.num + ' < ' + prob.upperSq + '</div>' +
+        '<div class="text-emerald-400 font-bold mt-1">2. Karekök al: √' + prob.lowerSq + ' < √' + prob.num + ' < √' + prob.upperSq + '</div>' +
+        '<div class="text-amber-300 font-bold mt-1">3. Sonuç: ' + prob.lower + ' < √' + prob.num + ' < ' + prob.upper + ' arasındadır!</div>';
+      modal.classList.remove('hidden');
+    }
+
+    function closeExplanation() {
+      document.getElementById('explanationModal').classList.add('hidden');
+    }
+
+    function askHint() {
+      const prob = getProblem(selectedBlock);
+      document.getElementById('owlSpeech').innerText = 'İpucu: ' + prob.num + ' sayısından önceki tam kare ' + prob.lowerSq + ' (' + prob.lower + '²), sonraki ise ' + prob.upperSq + ' (' + prob.upper + '²)'dir!';
+    }
+
+    function replenishBlocks() {
+      const candidatePool = [7, 8, 14, 15, 21, 23, 30, 35, 42, 45, 55, 68, 85, 95, 130, 200, 300];
+      blocks = candidatePool.sort(() => 0.5 - Math.random()).slice(0, 6);
+      selectedBlock = blocks[0];
+      renderBlocks();
+      renderNumberLine();
+    }
+
+    function restartGame() {
+      score = 0;
+      lives = 3;
+      blocks = [13, 2, 5, 11, 17, 27];
+      selectedBlock = 13;
+      placedBlocks = {};
+      document.getElementById('scoreText').innerText = '0';
+      updateLives();
+      renderBlocks();
+      renderNumberLine();
+      document.getElementById('owlSpeech').innerText = 'Yeniden başladık! √13 sayısı hangi iki tam sayı arasındadır?';
+    }
+
+    // Initialize
+    renderBlocks();
+    renderNumberLine();
+  </script>
+</body>
+</html>
